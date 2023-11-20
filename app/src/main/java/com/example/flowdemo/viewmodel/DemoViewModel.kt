@@ -40,4 +40,10 @@ class DemoViewModel: ViewModel() {
         val doubled = it * 2
         emit("Multiple value = $doubled")
     }
+
+    fun doublet(value: Int) = flow {
+        emit(value)
+        delay(1000)
+        emit(value + value)
+    }
 }
