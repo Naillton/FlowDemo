@@ -5,7 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +22,7 @@ import androidx.compose.runtime. *
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -54,7 +58,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ScreenSetup(model: DemoViewModel = viewModel()) {
     // MainScreen(model.myFlow)
-    MultipleFlows()
+    // MultipleFlows()
+    // MutableState(model)
+    MutableSharedStateFlow(model = model)
 }
 
 @OptIn(FlowPreview::class)
@@ -136,6 +142,44 @@ fun MultipleFlows() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = count, style = TextStyle(fontSize = 40.sp))
+    }
+}
+
+@Composable
+fun MutableState(model: DemoViewModel) {
+    val count by model.stateFlow.collectAsState()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = { model.increaseValue() }
+        ) {
+            Text(text = "Increase Value")
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Value = $count")
+    }
+}
+
+@Composable
+fun MutableSharedStateFlow(model: DemoViewModel) {
+    val count by model.sharedFlow.collectAsState(0)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = { model.startSharedFlow() }
+        ) {
+            Text(text = "Increase Value")
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Value = $count")
     }
 }
 

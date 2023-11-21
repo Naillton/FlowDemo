@@ -1,7 +1,9 @@
 package com.example.flowdemo.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 
 /**
@@ -10,6 +12,37 @@ import kotlinx.coroutines.flow.*
  */
 
 class DemoViewModel: ViewModel() {
+
+    // criando fluxo stateFlow com MutableStateFlow() que recebera um valor inicial
+    private val _stateFlow = MutableStateFlow(0)
+    // criando variavel de referencia ao state flow
+    val stateFlow = _stateFlow.asStateFlow()
+
+    // funcao para incrementar valor ao mutbleState
+    fun increaseValue() {
+        _stateFlow.value += 1
+    }
+
+    // criando sharedFlow que fara tudo que o MutableStateFlow faz com algumas diferencas
+    // o MutableSharedFlow defini o limite vezes em que o fluxo sera reproduzido
+    // e um valor no buffer que definira como ele deve funcionar
+    // EX: first in first out -> o primeiro valor a entrar no buffer vai ser o primeiro a sair quando ele tiver cheio
+    // EX: suspend buffer -> quando o buffer estiver cheio ele sera suspenso
+    private val _sharedFlow = MutableSharedFlow<Int>(
+        replay = 10,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val sharedFlow = _sharedFlow.asSharedFlow()
+
+    // criando funcao que iniciara uam isntancia do sharedFlow chamando o emit()
+    fun startSharedFlow() {
+        viewModelScope.launch {
+            for (i in 1..5) {
+                _sharedFlow.emit(i)
+                delay(2000)
+            }
+        }
+    }
 
     // criando stateFlow do tipo int que fara uma contagem de 0 a 9 com delay de 2 segundos
     val myFlow: Flow<Int> = flow {
